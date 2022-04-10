@@ -1,0 +1,125 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="items" class="container">
+
+    </div>
+    <button id="loadMore">Load More</button>
+</body>
+
+</html>
+
+<script>
+    fetch("data.json")
+        .then(response => response.json())
+        .then(data => {
+            let output = "";
+            for (var key in data) {
+                var logo;
+                if (data[key].source_type == "instagram") {
+                    logo = "instagram-logo.svg";
+                } else {
+                    logo = "facebook.svg";
+                }
+
+
+                let date = new Date(data[key].date);
+
+                var truncate = function (word, limit, after) {
+
+                    if (word.length > limit) {
+                        word = word.slice(0, limit) + (after ? after : '');
+                        return word;
+                    } else {
+                        return word;
+                    }
+                };
+                let description = data[key].caption;
+                description = truncate(description, 150, '...');
+
+                output += "<section class='card'>"
+                    + "<div class='info'>"
+                    + "<div class='user'>"
+                    + "<div class='profile-pic'><img src='" + data[key].profile_image + "'></div>"
+                    + "<div class='details'>"
+                    + " <p class='username'>" + data[key].name + "</p>"
+                    + " <p class='post-time'>" + date.toLocaleDateString("en-US", { day: 'numeric' }) + " " + date.toLocaleDateString("en-US", { month: 'short' }) + " " + date.toLocaleDateString("en-US", { year: 'numeric' }) + "</p>"
+                    + " </div>"
+                    + " </div>"
+                    + " <img src='" + logo + "' class='app-logo' alt='''>"
+                    + "</div>"
+                    + "<div class='post-image'>"
+                    + "<img src='" + data[key].image + "' class='image' alt='''>"
+                    + "</div>"
+                    + "<div class='post-content'>"
+                    + "   <p class='description'>" + data[key].caption + "</p>"
+                    + "</div>"
+                    + "<div class='reaction-wrapper' >"
+                    + "<div class='icon' ><img class='icon" + key + "' src='heart.svg' alt='' onclick='likes(" + key + ")' ></div>"
+                    + "<div class='likes' ><p class='likes" + key + "'>" + data[key].likes + "</p></div>"
+                    + "</div></section>"
+
+            }
+            document.querySelector(".container").innerHTML = output;
+
+            var cards = document.querySelector("#items");
+            var items = Array.from(cards.querySelectorAll(".card"));
+            var loadMore = document.getElementById("loadMore");
+            maxItems = 4;
+            loadItems = 4;
+            hiddenClass = "hiddenStyle";
+            hiddenItems = Array.from(document.querySelectorAll(".hiddenStyle"));
+
+            items.forEach(function (item, index) {
+                console.log(item.innerText, index);
+                if (index > maxItems - 1) {
+                    item.classList.add(hiddenClass);
+                }
+            });
+
+            loadMore.addEventListener("click", function () {
+                [].forEach.call(document.querySelectorAll("." + hiddenClass), function (
+                    item,
+                    index
+                ) {
+                    if (index < loadItems) {
+                        item.classList.remove(hiddenClass);
+                    }
+
+                    if (document.querySelectorAll("." + hiddenClass).length === 0) {
+                        loadMore.style.display = "none";
+                    }
+                });
+            });
+
+        })
+        .catch(error => console.log(error));
+
+    function likes(select) {
+        if (document.querySelector(".icon" + select + ".click")) {
+            document.querySelector(".icon" + select + "").setAttribute('class', 'icon' + select + '');
+            document.querySelector(".icon" + select + "").setAttribute('src', 'heart.svg');
+            var v = document.querySelector(".likes" + select + "");
+            var numlikes = parseInt(v.textContent);
+            document.querySelector(".likes" + select + "").innerHTML = numlikes - 1;
+        }
+        else {
+            document.querySelector(".icon" + select + "").setAttribute('class', 'icon' + select + ' click');
+            document.querySelector(".icon" + select + "").setAttribute('src', 'heart-fill.svg');
+            var v = document.querySelector(".likes" + select + "");
+            var numlikes = parseInt(v.textContent);
+            document.querySelector(".likes" + select + "").innerHTML = numlikes + 1;
+        }
+    };
+
+
+
+
+
+
+
+</script>
